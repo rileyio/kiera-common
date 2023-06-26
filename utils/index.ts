@@ -14,8 +14,6 @@ export function getArgs(msg: string) {
   return msg.replace(XRegex(`/(?!["][^"]\B)\s+(?![^"]+["]\B)/`, 'g'), ' ').split(/(?!["][^"]\B)\s+(?![^"]+["]\B)/g)
 }
 
-export * from './client-event-handler.ts'
-// export * from './prompt'
 export * from './date.ts'
 export * from '../../localization.ts'
 export * from './string-builder.ts'

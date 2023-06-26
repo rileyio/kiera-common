@@ -1,8 +1,8 @@
 import { Bot } from '#/index'
 
 export async function fetchUserCounts(Bot: Bot) {
-  var totalUsers = 0
-  var totalRegistered = 0
+  let totalUsers = 0
+  let totalRegistered = 0
 
   totalUsers = [...Bot.client.guilds.cache.values()].map((g) => g.memberCount).reduce((prev, cur) => (cur += prev))
 
@@ -10,8 +10,8 @@ export async function fetchUserCounts(Bot: Bot) {
   totalRegistered = await Bot.DB.count('users', {})
 
   return {
-    total: totalUsers,
-    registered: totalRegistered
+    registered: totalRegistered,
+    total: totalUsers
   }
 }
 

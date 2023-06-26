@@ -4,8 +4,6 @@ import * as path from 'path'
 
 import { RouteConfiguration, RouteConfigurationType } from '#router/index'
 
-import { Bot } from '../..'
-
 export const PluginRegexPatterns = {
   author: /@author\s([a-z0-9\-]+)/i,
   name: /@name\s([a-z0-9\-]+)/i,
@@ -95,7 +93,7 @@ export class Plugin {
     )
   }
 
-  public async register(bot: Bot, pluginsDir: string, pluginBody: string, enabled: boolean, verified: boolean) {
+  public async register(pluginsDir: string, pluginBody: string, enabled: boolean, verified: boolean) {
     this.pluginBodyString = pluginBody
 
     // Set/Update Plugin Props from comment block

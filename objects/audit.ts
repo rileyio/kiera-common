@@ -1,4 +1,5 @@
 import { Bot } from '#/index'
+import { MongoDB } from '../db/database.ts'
 import { ObjectId } from 'bson'
 
 export type AuditEntryType =
@@ -32,13 +33,13 @@ export class AuditEntry {
 }
 
 export class Audit {
-  private bot: Bot
+  private DB: MongoDB
 
-  constructor(_bot: Bot) {
-    this.bot = _bot
+  constructor(db: MongoDB) {
+    this.DB = db
   }
 
   public async NewEntry(entry: Partial<AuditEntry>) {
-    await this.bot.DB.add('audit-log', new AuditEntry(entry))
+    await this.DB.add('audit-log', new AuditEntry(entry))
   }
 }

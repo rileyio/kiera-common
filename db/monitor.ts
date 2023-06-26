@@ -1,10 +1,12 @@
-import { Bot } from '#/index'
+import { MongoDB, MongoDBLoader } from '#db'
+
 import { EventEmitter } from 'events'
-import { MongoDBLoader } from '#db'
+import { Logger } from '#utils'
 import { performance } from 'perf_hooks'
 
 export class DatabaseMonitor extends EventEmitter {
-  private Bot: Bot
+  private DB: MongoDB
+  private Log: Logger.Debug
   private monitorInterval: NodeJS.Timer
   public isWaiting = false
   public isMonitorRunning = false
@@ -16,14 +18,15 @@ export class DatabaseMonitor extends EventEmitter {
   public lastPingEnd: number
   public lastPingTime: number
 
-  constructor(bot: Bot) {
+  constructor(db: MongoDB, logger: Logger.Debug) {
     super()
-    this.Bot = bot
+    this.DB = db
+    this.Log = logger
   }
 
   public async start() {
     // If no DB is defined yet, start the MongoDBLoader to create one
-    if (!this.Bot.DB) this.Bot.DB = await MongoDBLoader(this.Bot.Log.Database)
+    if (!this.DB) this.DB = await MongoDBLoader(this.Log)
     // Return DB Monitor & start first new connection
     return await this.monitor()
   }
@@ -36,7 +39,7 @@ export class DatabaseMonitor extends EventEmitter {
     // Block dup
     if (this.isMonitorRunning) return
 
-    this.Bot.Log.Database.log('connecting to database...')
+    this.Log.log('connecting to database...')
 
     this.isMonitorRunning = true
     this.monitorInterval = setInterval(async () => {
@@ -54,7 +57,7 @@ export class DatabaseMonitor extends EventEmitter {
     try {
       // track performance
       this.lastPingStart = performance.now()
-      const _ping = await this.Bot.DB.ping()
+      const _ping = await this.DB.ping()
 
       if (_ping) {
         this.lastPingEnd = performance.now()

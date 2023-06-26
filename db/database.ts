@@ -8,11 +8,11 @@ import { TrackedMutedUser, TrackedUser } from '#objects/user/index'
 
 import { AuditEntry } from '#objects/audit'
 import { ManagedChannel } from '#objects/managed'
+import { Secrets } from '#utils'
 import { StoredServer } from '#objects/server'
 import { TrackedMessage } from '#objects/message'
 import { TrackedPoll } from '#objects/poll'
 import { TrackedSession } from '#objects/session'
-import { read as getSecret } from '#secrets'
 import { mongoDot_lvl2 } from 'mongo_dottype'
 import { performance } from 'perf_hooks'
 
@@ -88,7 +88,7 @@ export class MongoDB {
 
   private async newConnection() {
     const client = new MongoClient(
-      getSecret('DB_STRING', this.log),
+      Secrets.read('DB_STRING', this.log),
       Object.assign(this.dbOpts, {
         readPreference: process.env.DB_READ_PREFERENCE ? process.env.DB_READ_PREFERENCE : undefined,
         useNewUrlParser: String(process.env.DB_USE_NEWURLPARSER || '').toLowerCase() === 'true',

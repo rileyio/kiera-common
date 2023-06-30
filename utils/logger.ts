@@ -41,7 +41,8 @@ export class Debug {
     }
 
     // If console.opts is set to false, overwrite transports to eliminate setup for console logging
-    if (!this.options.console || !this._toConsole) fileLoggerProps.transports = [new Winston.transports.File({ filename: `./logs/${this.name}.log` })]
+    if (!this.options?.console && !this._toConsole) fileLoggerProps.transports = [new Winston.transports.File({ filename: `./logs/${this.name}.log` })]
+
     this.winston = Winston.createLogger(fileLoggerProps)
 
     // Keep Winston from an exit if it fails

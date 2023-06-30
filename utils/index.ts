@@ -15,7 +15,6 @@ export function getArgs(msg: string) {
 }
 
 export * from './date.ts'
-export * from '../../localization.ts'
 export * from './string-builder.ts'
 export * as Secrets from './secrets.ts'
 export * as Types from './types.ts'

@@ -5,7 +5,7 @@ import * as url from 'url'
 import { Logger } from '#utils'
 import isDocker from 'is-docker'
 
-export function read(secretName: string, logger: Logger.Debug) {
+export function read(secretName: string, logger: Logger.Debug = new Logger.Debug('secrets')) {
   const isInDocker = isDocker()
   // Detcted running in docker
   if (isInDocker) logger.log('Detected running in docker.. switching how secrets are read')

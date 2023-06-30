@@ -35,14 +35,14 @@ export async function deleteSpecificMessages(channel: Discord.TextChannel, messa
  * @param {*} textChannel
  * @param {string} id
  */
-export async function deleteMessage(textChannel: Discord.TextChannel | Discord.DMChannel, id: string, debug?: debug.IDebugger) {
+export async function deleteMessage(textChannel: Discord.TextChannel | Discord.DMChannel, id: string, DEBUG: Logger.Debug) {
   // Find message in channel
   const msg = await textChannel.messages.fetch(id)
 
   // Delete message
   await msg.delete()
 
-  debug ? debug(`deleted message id:${id} channelId:${textChannel.id}`) : console.log(`deleted message id:${id} channelId:${textChannel.id}`)
+  DEBUG.log(`deleted message id:${id} channelId:${textChannel.id}`)
 }
 
 export function buildChannelChatAt(input: string | Discord.TextChannel): string {

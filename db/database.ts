@@ -121,11 +121,12 @@ export class MongoDB {
     let status: boolean
     try {
       const connection = await this.connect()
+      const performanceStart = performance.now()
       const pingStatus = await connection.db.command({ ping: 1 })
       status = pingStatus ? true : false
-      this.log.debug(`ping success!`)
+      this.log.debug(`❤️  DB Check [${status ? 'OK' : 'FAIL'} - ${Math.round(performance.now() - performanceStart)}ms]`)
     } catch (error) {
-      this.log.error(`ping failed!`, error)
+      this.log.error(`💔 ping failed! ${error.message}`)
       status = false
     }
     return status
@@ -139,7 +140,7 @@ export class MongoDB {
    */
   public async add<T extends keyof Collections>(targetCollection: T, record: Filter<Collections[T]>): Promise<ObjectId> {
     const performanceStart = performance.now()
-    this.log.debug(`[${targetCollection}].add =>`, targetCollection)
+    // this.log.debug(`[${targetCollection}].add =>`, targetCollection)
     try {
       const connection = await this.connect()
       const collection = connection.db.collection(targetCollection)
@@ -160,7 +161,7 @@ export class MongoDB {
    */
   public async addMany<T extends keyof Collections>(targetCollection: T, record: Array<Partial<Collections[T]>>, opts?: BulkWriteOptions): Promise<number> {
     const performanceStart = performance.now()
-    this.log.debug(`[${targetCollection}].addMany =>`, targetCollection)
+    // this.log.debug(`[${targetCollection}].addMany =>`, targetCollection)
     try {
       const connection = await this.connect()
       const collection = connection.db.collection(targetCollection)
@@ -181,7 +182,7 @@ export class MongoDB {
    */
   public async verify<T extends keyof Collections>(targetCollection: T, query: Filter<Collections[T]>): Promise<boolean> {
     const performanceStart = performance.now()
-    this.log.debug(`.verify =>`, targetCollection)
+    // this.log.debug(`.verify =>`, targetCollection)
     try {
       const connection = await this.connect()
       const collection = connection.db.collection(targetCollection)
@@ -202,7 +203,7 @@ export class MongoDB {
    */
   public async remove<T extends keyof Collections>(targetCollection: T, query: Filter<Collections[T]>, opts?: { deleteOne?: boolean }): Promise<number> {
     const performanceStart = performance.now()
-    this.log.debug(`.remove =>`, targetCollection)
+    // this.log.debug(`.remove =>`, targetCollection)
     try {
       const deleteOptions = Object.assign({ deleteOne: true }, opts)
       const connection = await this.connect()
@@ -232,7 +233,7 @@ export class MongoDB {
     opts?: { upsert?: boolean; updateOne?: boolean; atomic?: boolean }
   ): Promise<number> {
     const performanceStart = performance.now()
-    this.log.debug(`.update =>`, targetCollection)
+    // this.log.debug(`.update =>`, targetCollection)
     try {
       const uopts = Object.assign(
         {
@@ -308,7 +309,7 @@ export class MongoDB {
     opts: { returnFields?: { [key: string]: number }; limit?: number } = {}
   ): Promise<Array<Collections[T]>> {
     const performanceStart = performance.now()
-    this.log.debug(`[${targetCollection}].getLatest => ${targetCollection}`)
+    // this.log.debug(`[${targetCollection}].getLatest => ${targetCollection}`)
     try {
       const connection = await this.connect()
       const collection = connection.db.collection(targetCollection)
@@ -338,7 +339,7 @@ export class MongoDB {
    */
   public async getMultiple<T extends keyof Collections>(targetCollection: T, query: DBQuery<T>, returnFields?: { [key: string]: number }) {
     const performanceStart = performance.now()
-    this.log.debug(`[${targetCollection}].getMultiple => ${targetCollection}`)
+    // this.log.debug(`[${targetCollection}].getMultiple => ${targetCollection}`)
     try {
       const connection = await this.connect()
       const collection = connection.db.collection(targetCollection)
@@ -354,7 +355,7 @@ export class MongoDB {
 
   public async count<T extends keyof Collections>(targetCollection: T, query: DBQuery<T>, options?: any) {
     const performanceStart = performance.now()
-    this.log.debug(`[${targetCollection}].count => ${targetCollection}`)
+    // this.log.debug(`[${targetCollection}].count => ${targetCollection}`)
     try {
       const connection = await this.connect()
       const collection = connection.db.collection(targetCollection, options)
@@ -370,14 +371,14 @@ export class MongoDB {
 
   public async aggregate<T>(targetCollection: keyof Collections, query: Array<object>) {
     const performanceStart = performance.now()
-    this.log.debug(`[${targetCollection}].aggregate => ${targetCollection}`)
+    // this.log.debug(`[${targetCollection}].aggregate => ${targetCollection}`)
     try {
       const connection = await this.connect()
       const collection = connection.db.collection(targetCollection)
-      const result = collection.aggregate(query)
-      this.log.debug(`.aggregate results [${Math.round(performance.now() - performanceStart)}ms] =>`, result.batchSize)
+      const result = (await collection.aggregate(query).toArray()) as Array<T>
+      this.log.debug(`.aggregate results [${Math.round(performance.now() - performanceStart)}ms] =>`, result.length)
       // connection.client.close()
-      return (await result.toArray()) as Array<T>
+      return result
     } catch (error) {
       this.log.error(`[${targetCollection}].aggregate error`, error)
       return null
@@ -386,7 +387,7 @@ export class MongoDB {
 
   public async distinct<T extends keyof Collections>(targetCollection: T, field: string): Promise<Array<string>> {
     const performanceStart = performance.now()
-    this.log.debug(`[${targetCollection}].distinct => ${targetCollection}`)
+    // this.log.debug(`[${targetCollection}].distinct => ${targetCollection}`)
     try {
       const connection = await this.connect()
       const collection = connection.db.collection(targetCollection)

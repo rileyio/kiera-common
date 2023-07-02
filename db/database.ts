@@ -16,7 +16,10 @@ import { TrackedSession } from '#objects/session'
 import { mongoDot_lvl2 } from 'mongo_dottype'
 import { performance } from 'perf_hooks'
 
-type MongoDBQuery<T extends keyof Collections> = Omit<mongoDot_lvl2<Collections[T] & Filter<Collections[T]>>, '_id'>
+type DBQuery<T extends keyof Collections> = Omit<mongoDot_lvl2<Collections[T] & Filter<Collections[T]>>, '_id'>
+type DBQueryReturnFields<T extends keyof Collections> = {
+  [key in keyof Collections[T]]: number
+}
 
 export type Collections = {
   'audit-log': AuditEntry
@@ -224,7 +227,7 @@ export class MongoDB {
    */
   public async update<T extends keyof Collections>(
     targetCollection: T,
-    query: MongoDBQuery<T>,
+    query: DBQuery<T>,
     update: UpdateFilter<Collections[T]> | Partial<Collections[T]>,
     opts?: { upsert?: boolean; updateOne?: boolean; atomic?: boolean }
   ): Promise<number> {
@@ -261,26 +264,27 @@ export class MongoDB {
    *
    * @template T
    * @param {T} targetCollection Target Collection by Collection Name
-   * @param {(Omit<mongoDot_lvl2<Collections[T] & Filter<Collections[T]>>, '_id'>)} query Query to search for
-   * @param {{ [key in keyof Collections[T]]: number }} [returnFields] Fields to return (undefined = all)
+   * @param {DBQuery<T>} query Query to search for
+   * @param {DBQueryReturnFields<T>} [returnFields] Fields to return (undefined = all)
    * @param {{ logging?: true }} [opts] Options
    * @return {*}  {Promise<Collections[T]>}
    * @memberof MongoDB
    */
   public async get<T extends keyof Collections>(
     targetCollection: T,
-    query: MongoDBQuery<T>,
-    returnFields?: { [key in keyof Collections[T]]: number },
-    opts?: { logging?: true }
+    query: DBQuery<T>,
+    returnFields?: DBQueryReturnFields<T>,
+    opts?: { logging?: boolean }
   ): Promise<Collections[T]> {
-    const performanceStart = performance.now()
-    this.log.debug(`[${targetCollection}].get => ${targetCollection}`)
+    const logging = opts && opts.logging !== undefined ? opts.logging : true
+    const performanceStart = logging ? performance.now() : undefined
+    if (logging) this.log.debug(`[${targetCollection}].get => ${targetCollection}`)
+
     try {
       const connection = await this.connect()
       const collection = connection.db.collection(targetCollection)
       const result = await collection.findOne<Collections[T]>(query, returnFields ? { projection: returnFields } : undefined)
-      if (opts.logging === undefined || opts.logging === true)
-        this.log.debug(`[${targetCollection}].get [${Math.round(performance.now() - performanceStart)}ms] =>`, result ? true : false)
+      if (logging) this.log.debug(`[${targetCollection}].get [${Math.round(performance.now() - performanceStart)}ms] =>`, result ? true : false)
       return result
     } catch (error) {
       this.log.error(`[${targetCollection}].get error`, error)
@@ -300,7 +304,7 @@ export class MongoDB {
    */
   public async getLatest<T extends keyof Collections>(
     targetCollection: T,
-    query: MongoDBQuery<T>,
+    query: DBQuery<T>,
     opts: { returnFields?: { [key: string]: number }; limit?: number } = {}
   ): Promise<Array<Collections[T]>> {
     const performanceStart = performance.now()
@@ -332,7 +336,7 @@ export class MongoDB {
    * @returns
    * @memberof DB
    */
-  public async getMultiple<T extends keyof Collections>(targetCollection: T, query: MongoDBQuery<T>, returnFields?: { [key: string]: number }) {
+  public async getMultiple<T extends keyof Collections>(targetCollection: T, query: DBQuery<T>, returnFields?: { [key: string]: number }) {
     const performanceStart = performance.now()
     this.log.debug(`[${targetCollection}].getMultiple => ${targetCollection}`)
     try {
@@ -348,7 +352,7 @@ export class MongoDB {
     }
   }
 
-  public async count<T extends keyof Collections>(targetCollection: T, query: MongoDBQuery<T>, options?: any) {
+  public async count<T extends keyof Collections>(targetCollection: T, query: DBQuery<T>, options?: any) {
     const performanceStart = performance.now()
     this.log.debug(`[${targetCollection}].count => ${targetCollection}`)
     try {

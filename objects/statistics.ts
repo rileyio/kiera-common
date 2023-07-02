@@ -1,63 +1,8 @@
 import { ObjectId } from 'bson'
+import * as z from 'zod'
 
 export type BotStatistic = 'commands-routed' | 'commands-completed' | 'commands-invalid' | 'commands-seen'
-
-export class BotStatistics {
-  public _id: ObjectId
-  public name: string = process.env.DISCORD_APP_NAME
-  public uptime = 0
-  public startTimestamp: number = Date.now()
-
-  public version: string
-
-  public messages = {
-    seen: 0,
-    sent: 0,
-    tracked: 0
-  }
-  public commands = {
-    byCommand: {},
-    completed: 0,
-    invalid: 0,
-    routed: 0
-  }
-  public users = {
-    registered: 0,
-    total: 0
-  }
-  public servers = {
-    total: 0
-  }
-  public discordAPICalls = 0
-
-  // public get stats() {
-  //   return {
-  //     commands: this.commands,
-  //     discordAPICalls: this.discordAPICalls,
-  //     dms: this.dms,
-  //     messages: this.messages,
-  //     name: this.name,
-  //     servers: this.servers,
-  //     startTimestamp: this.startTimestamp,
-  //     uptime: this.uptime,
-  //     users: this.users,
-  //     version: this.version
-  //   }
-  // }
-
-  constructor(init: Partial<BotStatistics>) {
-    this.version = init.version
-  }
-
-  public startup(init: BotStatistics) {
-    // Strip certain values that would reset each bot restart
-    delete init.uptime
-    delete init.startTimestamp
-    delete init.users
-    // Now merge prps
-    Object.assign(this, init)
-  }
-}
+export type BotStatistics = z.infer<typeof BotStatisticSchema>
 
 export enum ServerStatisticType {
   Message,
@@ -71,6 +16,32 @@ export enum ServerStatisticType {
   CommandSuccess,
   CommandFailure
 }
+
+export const BotStatisticSchema = z.object({
+  _id: z.instanceof(ObjectId).optional(),
+  name: z.string(),
+  uptime: z.number(),
+  startTimestamp: z.number(),
+  version: z.string(),
+  messages: z.object({
+    seen: z.number(),
+    sent: z.number(),
+    tracked: z.number()
+  }),
+  commands: z.object({
+    completed: z.number(),
+    invalid: z.number(),
+    routed: z.number()
+  }),
+  users: z.object({
+    registered: z.number(),
+    total: z.number()
+  }),
+  servers: z.object({
+    total: z.number()
+  }),
+  discordAPICalls: z.number()
+})
 
 /**
  * For User/Server statistics

@@ -1,21 +1,15 @@
 import { ObjectId } from 'bson'
+import * as z from 'zod'
 
-export class TrackedBotSetting {
-  public readonly _id?: ObjectId
-  public added: number
-  public author: 'kiera-bot' | string
-  public description?: string
-  public env?: string
-  public key: string | RegExp
-  public updated: number
-  public value: any
+export type TrackedBotSetting = z.infer<typeof TrackedBotSettingSchema>
 
-  constructor(init: Partial<TrackedBotSetting>) {
-    this.update(init)
-  }
-
-  public update(init: Partial<TrackedBotSetting>) {
-    Object.assign(this, init)
-    return this
-  }
-}
+export const TrackedBotSettingSchema = z.object({
+  _id: z.instanceof(ObjectId).optional(),
+  added: z.number(),
+  author: z.string(),
+  description: z.string().optional(),
+  env: z.string().optional(),
+  key: z.union([z.string(), z.instanceof(RegExp).refine((v) => v.toString().startsWith('/'), { message: 'Must be a RegExp literal' })]),
+  updated: z.number(),
+  value: z.any()
+})

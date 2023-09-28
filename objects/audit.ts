@@ -1,4 +1,3 @@
-import { Bot } from '#/index'
 import { MongoDB } from '../db/database.ts'
 import { ObjectId } from 'bson'
 
@@ -40,6 +39,10 @@ export class Audit {
   }
 
   public async NewEntry(entry: Partial<AuditEntry>) {
-    await this.DB.add('audit-log', new AuditEntry(entry))
+    try {
+      await this.DB.add('audit-log', new AuditEntry(entry))
+    } catch (error) {
+      console.error('Unable to Audit.NewEntry', error)
+    }
   }
 }

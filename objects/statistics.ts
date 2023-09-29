@@ -1,8 +1,9 @@
-import { ObjectId } from 'bson'
 import * as z from 'zod'
 
+import { ObjectId } from 'bson'
+
 export type BotStatistic = 'commands-routed' | 'commands-completed' | 'commands-invalid' | 'commands-seen'
-export type BotStatistics = z.infer<typeof BotStatisticSchema>
+export type BotStatistics = z.infer<typeof BotStatisticsSchema>
 
 export enum ServerStatisticType {
   Message,
@@ -17,30 +18,30 @@ export enum ServerStatisticType {
   CommandFailure
 }
 
-export const BotStatisticSchema = z.object({
+export const BotStatisticsSchema = z.object({
   _id: z.instanceof(ObjectId).optional(),
-  name: z.string(),
-  uptime: z.number(),
-  startTimestamp: z.number(),
-  version: z.string(),
-  messages: z.object({
-    seen: z.number(),
-    sent: z.number(),
-    tracked: z.number()
-  }),
   commands: z.object({
     completed: z.number(),
     invalid: z.number(),
     routed: z.number()
   }),
+  discordAPICalls: z.number(),
+  messages: z.object({
+    seen: z.number(),
+    sent: z.number(),
+    tracked: z.number()
+  }),
+  name: z.string(),
+  servers: z.object({
+    total: z.number()
+  }),
+  startTimestamp: z.number(),
+  uptime: z.number(),
   users: z.object({
     registered: z.number(),
     total: z.number()
   }),
-  servers: z.object({
-    total: z.number()
-  }),
-  discordAPICalls: z.number()
+  version: z.string()
 })
 
 /**

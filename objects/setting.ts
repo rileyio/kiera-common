@@ -1,5 +1,6 @@
-import { ObjectId } from 'bson'
 import * as z from 'zod'
+
+import { ObjectId } from 'bson'
 
 export type TrackedBotSetting = z.infer<typeof TrackedBotSettingSchema>
 

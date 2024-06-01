@@ -1,2 +1,2 @@
-export * from './database.ts'
-export * from './monitor.ts'
+export * from './database'
+export * from './monitor'

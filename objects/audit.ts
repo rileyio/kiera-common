@@ -1,4 +1,4 @@
-import { MongoDB } from '../db/database.ts'
+import { MongoDB } from '../db/database'
 import { ObjectId } from 'bson'
 
 export type AuditEntryType =
